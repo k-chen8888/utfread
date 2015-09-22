@@ -39,7 +39,6 @@ std::wstring fReadUTF8(std::ifstream &infile)
 			start = 3;
 		}
 		
-		
 		// Get all characters (single bytes) from the line
 		for(unsigned int i = start; i < line.length(); i++)
 		{
@@ -51,10 +50,10 @@ std::wstring fReadUTF8(std::ifstream &infile)
 			// Now we know it's either 2-bit or 3-bit UTF-8
 			else
 			{
-				int leading = (int)line[i] & UTF8ID;
 				int result = 0;
 				
-				switch(leading)
+				// The first byte reveals the length of the UTF-8 character
+				switch(line[i] & UTF8ID)
 				{
 					case TWOBYTEC: case TWOBYTED:
 						result += (line[i] & 31) << ENC; // 110[xxxxx] 10xxxxxx
