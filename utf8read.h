@@ -33,6 +33,9 @@
 #define THREEBIT 0xE0
 // The rest are invalid
 
+// Encoding variable, shift to the left by the number of bytes of form 10xxxxxx
+#define ENC 6
+
 
 /* A UTF8 to UTF16 converter
  * Uses range rules from Linux manpages
@@ -44,11 +47,9 @@
  * 	2**(1+5*6) == 2147483648 == 0x80000000
  *
  * Note: 3 bytes upper limit on length
- */
-int utf8to16(int value);
- 
-
-/* Read characters from a text file encoded in UTF-8
+ *
+ *
+ * Read characters from a text file encoded in UTF-8
  * Ignores BOM (Byte-Order Mark), as it is not recommended for UTF-8
  * Converts everything to wide characters (wchar_t)
  * Stop at the end of the line and pick up from there when called again

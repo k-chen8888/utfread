@@ -16,42 +16,9 @@
  * 	2**(1+5*6) == 2147483648 == 0x80000000
  *
  * Note: 3 bytes upper limit on length
- */
-int utf8to16(int value)
-{
-	if(value > (int)0b01111111)
-	{
-		if(value > (int)0b1101111110111111)
-		{
-			if(value > (int)0b111011111011111110111111)
-			{
-				// Out of bounds
-				return value;
-			}
-			else
-			{
-				// 3 bytes
-				// Extract the part in brackets: 1110[xxxx] 10[xxxxxx] 10[xxxxxx]
-				return ( ( ( (value & (15 << 16)) >> 2 ) + (value & (63 << 8)) ) >> 2 ) + (value & (63));
-			}
-		}
-		else
-		{
-			// 2 bytes
-			// Extract the part in brackets: 110[xxxxx] 10[xxxxxx]
-			return ( (value & (31 << 8)) >> 2 ) + (value & (63));
-		}
-	}
-	else
-	{
-		// It's ASCII (1 byte)
-		// Extract the part in brackets: 0[xxxxxxx]
-		return value & 127;
-	}
-}
-
-
-/* Read a single line of characters from a text file encoded in UTF-8
+ *
+ *
+ * Read characters from a text file encoded in UTF-8
  * Ignores BOM (Byte-Order Mark), as it is not recommended for UTF-8
  * Converts everything to wide characters (wchar_t)
  * Stop at the end of the line and pick up from there when called again
@@ -69,7 +36,7 @@ std::wstring fReadUTF8(std::ifstream &infile)
 	{
 		// Ignore BOM
 		unsigned int start = 0;
-		if(line[0] == BOM0 && line[1] == BOM1 && line[2] == BOM2)
+		if((unsigned int)line[0] == BOM0 && (unsigned int)line[1] == BOM1 && (unsigned int)line[2] == BOM2)
 		{
 			start = 3;
 		}
@@ -92,25 +59,18 @@ std::wstring fReadUTF8(std::ifstream &infile)
 				switch(leading)
 				{
 					case TWOBITC: case TWOBITD:
-						result += (line[i] & 31) << 6;
-						result += line[i + 1] & 63;
+						result += (line[i] & 31) << ENC; // 110[xxxxx] 10xxxxxx
+						result += line[i + 1] & 63;      // 110xxxxx 10[xxxxxx]
 						
-						// How many spaces to increment i by? That depends on whether or not the third character is equivalent to 0...
-						if (line[i + 2] == 0)
-						{
-							i += 2;
-						}
-						else
-						{
-							i += 1;
-						}
+						// How many spaces to increment i by? That depends on whether or not the third character is encoded as 0...
+						i += ( line[i + 2] == 0 ? 2 : 1);
 						
 						break;
 					
 					case THREEBIT:
-						result += (line[i] & 15) << 12;
-						result += (line[i + 1] & 63) << 6;
-						result += line[i + 2] & 63;
+						result += (line[i] & 15) << 2 * ENC; // 1110[xxxx] 10xxxxxx 10xxxxxx
+						result += (line[i + 1] & 63) << ENC; // 1110xxxx 10[xxxxxx] 10xxxxxx
+						result += line[i + 2] & 63;          // 1110xxxx 10xxxxxx 10[xxxxxx]
 						
 						i += 2;
 						
