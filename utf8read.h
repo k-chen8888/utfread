@@ -15,9 +15,9 @@
 
 
 // Byte-Order Marks
-#define BOM0 0xffffffef
-#define BOM1 0xffffffbb
-#define BOM2 0xffffffbf
+#define BOM0 0xFFFFFFEF
+#define BOM1 0xFFFFFFBB
+#define BOM2 0xFFFFFFBF
 
 // Significant bytes for UTF-8, which is always of the form ffffff[xx], where [xx] is the byte needed
 #define UTFFLOOR 0xFFFFFF00 // Anything less than this is ASCII
