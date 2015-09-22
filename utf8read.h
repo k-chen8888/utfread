@@ -19,9 +19,12 @@
 
 
 // Byte-Order Marks
-#define BOM0 (int)0xffffffef
-#define BOM1 (int)0xffffffbb
-#define BOM2 (int)0xffffffbf
+#define BOM0 0xffffffef
+#define BOM1 0xffffffbb
+#define BOM2 0xffffffbf
+
+// Significant bytes for UTF-8, which is always of the form ffffff[xx], where [xx] is the byte needed
+#define UTF8BYTE 0x000000FF
 
 
 /* A UTF8 to UTF16 converter

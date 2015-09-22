@@ -49,7 +49,7 @@ int utf8to16(int value)
 }
 
 
-/* Read characters from a text file encoded in UTF-8
+/* Read a single line of characters from a text file encoded in UTF-8
  * Ignores BOM (Byte-Order Mark), as it is not recommended for UTF-8
  * Converts everything to wide characters (wchar_t)
  * Stop at the end of the line and pick up from there when called again
@@ -72,6 +72,7 @@ std::wstring fReadUTF8(std::ifstream &infile)
 			start = 3;
 		}
 		
+		
 		// Get all characters (single bytes) from the line
 		for(unsigned int i = start; i < line.length(); i++)
 		{
@@ -79,7 +80,7 @@ std::wstring fReadUTF8(std::ifstream &infile)
 			if(!isascii(line[i]))
 			{
 				// Grab UTF-8 representation of the character (3 bytes)
-				int value = ( ( (int)line[i] & 0x000000FF ) << 16 ) + ( ( (int)line[i + 1] & 0x000000FF ) << 8 ) + ( (int)line[i + 2] & 0x000000FF );
+				int value = ( ( (int)line[i] & UTF8BYTE ) << 16 ) + ( ( (int)line[i + 1] & UTF8BYTE ) << 8 ) + ( (int)line[i + 2] & UTF8BYTE );
 				
 				// Use a converter to get UTF-16
 				int u16char = utf8to16(value);
