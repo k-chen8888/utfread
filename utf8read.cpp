@@ -14,42 +14,9 @@
  * 	2**(1+5*6) == 2147483648 == 0x80000000
  *
  * Note: 3 bytes upper limit on length
- */
-int utf8to16(int value)
-{
-	if(value > (int)0b01111111)
-	{
-		if(value > (int)0b1101111110111111)
-		{
-			if(value > (int)0b111011111011111110111111)
-			{
-				// Out of bounds
-				return value;
-			}
-			else
-			{
-				// 3 bytes
-				// Extract the part in brackets: 1110[xxxx] 10[xxxxxx] 10[xxxxxx]
-				return ( ( ( (value & (15 << 16)) >> 2 ) + (value & (63 << 8)) ) >> 2 ) + (value & (63));
-			}
-		}
-		else
-		{
-			// 2 bytes
-			// Extract the part in brackets: 110[xxxxx] 10[xxxxxx]
-			return ( (value & (31 << 8)) >> 2 ) + (value & (63));
-		}
-	}
-	else
-	{
-		//It's ASCII (1 byte)
-		// Extract the part in brackets: 0[xxxxxxx]
-		return value & 127;
-	}
-}
-
-
-/* Read characters from a text file encoded in UTF-8
+ *
+ *
+ * Read characters from a text file encoded in UTF-8
  * Ignores BOM (Byte-Order Mark), as it is not recommended for UTF-8
  * Converts everything to wide characters (wchar_t)
  * Stop at the end of the line and pick up from there when called again
@@ -67,34 +34,54 @@ std::wstring fReadUTF8(std::ifstream &infile)
 	{
 		// Ignore BOM
 		unsigned int start = 0;
-		if(line[0] == (int)0xffffffef && line[1] == (int)0xffffffbb && line[2] == (int)0xffffffbf)
+		if((unsigned int)line[0] == BOM0 && (unsigned int)line[1] == BOM1 && (unsigned int)line[2] == BOM2)
 		{
 			start = 3;
 		}
 		
+		
 		// Get all characters (single bytes) from the line
 		for(unsigned int i = start; i < line.length(); i++)
 		{
-			// Detect non-ASCII characters and convert them to UTF-16 manually
-			if(!isascii(line[i]))
-			{
-				// Grab UTF-8 representation of the character (3 bytes)
-				int value = ( ( (int)line[i] & 0x000000FF ) << 16 ) + ( ( (int)line[i + 1] & 0x000000FF ) << 8 ) + ( (int)line[i + 2] & 0x000000FF );
-				
-				// Use a converter to get UTF-16
-				int u16char = utf8to16(value);
-				
-				// Output
-				out += (wchar_t)u16char;
-				i = i + 2;
-			}
-			else
+			// 1-byte UTF-8 is the same as ASCII
+			if(isascii(line[i]))
 			{
 				out += (wchar_t)line[i];
+			}
+			// Now we know it's either 2-bit or 3-bit UTF-8
+			else
+			{
+				int leading = (int)line[i] & UTF8ID;
+				int result = 0;
+				
+				switch(leading)
+				{
+					case TWOBITC: case TWOBITD:
+						result += (line[i] & 31) << ENC; // 110[xxxxx] 10xxxxxx
+						result += line[i + 1] & 63;      // 110xxxxx 10[xxxxxx]
+						
+						// How many spaces to increment i by? That depends on whether or not the third character is encoded as 0...
+						i += ( line[i + 2] == 0 ? 2 : 1 );
+						
+						break;
+					
+					case THREEBIT:
+						result += (line[i] & 15) << 2 * ENC; // 1110[xxxx] 10xxxxxx 10xxxxxx
+						result += (line[i + 1] & 63) << ENC; // 1110xxxx 10[xxxxxx] 10xxxxxx
+						result += line[i + 2] & 63;          // 1110xxxx 10xxxxxx 10[xxxxxx]
+						
+						i += 2;
+						
+						break;
+					
+					default:
+						break; // Invalid UTF-8
+				}
+				
+				out += (wchar_t)result;
 			}
 		}
 	}
 	
-	std::wcout << out;
 	return out;
 };
