@@ -43,7 +43,7 @@ std::wstring fReadUTF8(std::ifstream &infile)
 		for(unsigned int i = start; i < line.length(); i++)
 		{
 			// 1-byte UTF-8 is the same as ASCII
-			if(isascii(line[i]))
+			if((unsigned int)line[i] < UTFFLOOR)
 			{
 				out += (wchar_t)line[i];
 			}

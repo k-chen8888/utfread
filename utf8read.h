@@ -7,15 +7,11 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <vector>
 
 // Locale tools
 #include <locale>
 #include <stdio.h>
 #include <fcntl.h>
-
-// Type identification
-#include <cctype>
 
 
 // Byte-Order Marks
@@ -24,6 +20,7 @@
 #define BOM2 0xffffffbf
 
 // Significant bytes for UTF-8, which is always of the form ffffff[xx], where [xx] is the byte needed
+#define UTFFLOOR 0xFFFFFF00 // Anything less than this is ASCII
 #define UTF8BYTE 0x000000FF
 #define UTF8ID   0x000000F0
 
