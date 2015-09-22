@@ -25,6 +25,13 @@
 
 // Significant bytes for UTF-8, which is always of the form ffffff[xx], where [xx] is the byte needed
 #define UTF8BYTE 0x000000FF
+#define UTF8ID   0x000000F0
+
+// Special structures of UTF
+#define TWOBITC  0xC0
+#define TWOBITD  0xD0
+#define THREEBIT 0xE0
+// The rest are invalid
 
 
 /* A UTF8 to UTF16 converter

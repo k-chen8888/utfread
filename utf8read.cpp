@@ -1,5 +1,7 @@
 /* Imports */
 
+#include <bitset>
+
 // Class header
 #include "utf8read.h"
 
@@ -76,23 +78,49 @@ std::wstring fReadUTF8(std::ifstream &infile)
 		// Get all characters (single bytes) from the line
 		for(unsigned int i = start; i < line.length(); i++)
 		{
-			// Detect non-ASCII characters and convert them to UTF-16 manually
-			if(!isascii(line[i]))
-			{
-				// Grab UTF-8 representation of the character (3 bytes)
-				int value = ( ( (int)line[i] & UTF8BYTE ) << 16 ) + ( ( (int)line[i + 1] & UTF8BYTE ) << 8 ) + ( (int)line[i + 2] & UTF8BYTE );
-				
-				// Use a converter to get UTF-16
-				int u16char = utf8to16(value);
-				
-				// Output
-				out += (wchar_t)u16char;
-				
-				i = i + 2;
-			}
-			else
+			// 1-byte UTF-8 is the same as ASCII
+			if(isascii(line[i]))
 			{
 				out += (wchar_t)line[i];
+			}
+			// Now we know it's either 2-bit or 3-bit UTF-8
+			else
+			{
+				int leading = (int)line[i] & UTF8ID;
+				int result = 0;
+				
+				switch(leading)
+				{
+					case TWOBITC: case TWOBITD:
+						result += (line[i] & 31) << 6;
+						result += line[i + 1] & 63;
+						
+						// How many spaces to increment i by? That depends on whether or not the third character is equivalent to 0...
+						if (line[i + 2] == 0)
+						{
+							i += 2;
+						}
+						else
+						{
+							i += 1;
+						}
+						
+						break;
+					
+					case THREEBIT:
+						result += (line[i] & 15) << 12;
+						result += (line[i + 1] & 63) << 6;
+						result += line[i + 2] & 63;
+						
+						i += 2;
+						
+						break;
+					
+					default:
+						break; // Invalid UTF-8
+				}
+				
+				out += (wchar_t)result;
 			}
 		}
 	}
