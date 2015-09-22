@@ -1,7 +1,5 @@
 /* Imports */
 
-#include <bitset>
-
 // Class header
 #include "utf8read.h"
 
