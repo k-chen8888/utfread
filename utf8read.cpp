@@ -61,7 +61,7 @@ std::wstring fReadUTF8(std::ifstream &infile)
 						result += line[i + 1] & 63;      // 110xxxxx 10[xxxxxx]
 						
 						// How many spaces to increment i by? That depends on whether or not the third character is encoded as 0...
-						i += ( line[i + 2] == 0 ? 2 : 1);
+						i += ( line[i + 2] == 0 ? 2 : 1 );
 						
 						break;
 					
