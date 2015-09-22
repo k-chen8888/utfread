@@ -42,7 +42,7 @@ int utf8to16(int value)
 	}
 	else
 	{
-		//It's ASCII (1 byte)
+		// It's ASCII (1 byte)
 		// Extract the part in brackets: 0[xxxxxxx]
 		return value & 127;
 	}
@@ -67,7 +67,7 @@ std::wstring fReadUTF8(std::ifstream &infile)
 	{
 		// Ignore BOM
 		unsigned int start = 0;
-		if(line[0] == (int)0xffffffef && line[1] == (int)0xffffffbb && line[2] == (int)0xffffffbf)
+		if(line[0] == BOM0 && line[1] == BOM1 && line[2] == BOM2)
 		{
 			start = 3;
 		}
@@ -86,6 +86,7 @@ std::wstring fReadUTF8(std::ifstream &infile)
 				
 				// Output
 				out += (wchar_t)u16char;
+				
 				i = i + 2;
 			}
 			else
@@ -95,6 +96,5 @@ std::wstring fReadUTF8(std::ifstream &infile)
 		}
 	}
 	
-	std::wcout << out;
 	return out;
 };

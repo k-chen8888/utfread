@@ -18,6 +18,12 @@
 #include <cctype>
 
 
+// Byte-Order Marks
+#define BOM0 (int)0xffffffef
+#define BOM1 (int)0xffffffbb
+#define BOM2 (int)0xffffffbf
+
+
 /* A UTF8 to UTF16 converter
  * Uses range rules from Linux manpages
  * 	2**(6+1)   == 128
