@@ -28,9 +28,9 @@
 #define UTF8ID   0x000000F0
 
 // Special structures of UTF
-#define TWOBITC  0xC0
-#define TWOBITD  0xD0
-#define THREEBIT 0xE0
+#define TWOBYTEC  0xC0
+#define TWOBYTED  0xD0
+#define THREEBYTE 0xE0
 // The rest are invalid
 
 // Encoding variable, shift to the left by the number of bytes of form 10xxxxxx

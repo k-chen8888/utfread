@@ -56,7 +56,7 @@ std::wstring fReadUTF8(std::ifstream &infile)
 				
 				switch(leading)
 				{
-					case TWOBITC: case TWOBITD:
+					case TWOBYTEC: case TWOBYTED:
 						result += (line[i] & 31) << ENC; // 110[xxxxx] 10xxxxxx
 						result += line[i + 1] & 63;      // 110xxxxx 10[xxxxxx]
 						
@@ -65,7 +65,7 @@ std::wstring fReadUTF8(std::ifstream &infile)
 						
 						break;
 					
-					case THREEBIT:
+					case THREEBYTE:
 						result += (line[i] & 15) << 2 * ENC; // 1110[xxxx] 10xxxxxx 10xxxxxx
 						result += (line[i + 1] & 63) << ENC; // 1110xxxx 10[xxxxxx] 10xxxxxx
 						result += line[i + 2] & 63;          // 1110xxxx 10xxxxxx 10[xxxxxx]
